@@ -200,21 +200,7 @@ h1 {
 }
 
 .voice-preview {
-  color: var(--accent-soft);
-  font-size: 0.9rem;
-  font-style: italic;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  max-height: 0;
-  overflow: hidden;
-  transition: max-height 150ms ease, opacity 150ms ease;
-  opacity: 0;
-}
-
-.voice-preview.is-visible {
-  max-height: 2rem;
-  opacity: 1;
+  display: none;
 }
 
 .voice-button {

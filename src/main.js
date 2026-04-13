@@ -124,12 +124,17 @@ const voice = createVoiceRecognition({
     });
   },
   onResult(text) {
-    editor.insertAtCursor(text);
+    editor.commitInterim(text);
   },
   onInterim(text) {
-    setInterimText(text);
+    if (text) {
+      editor.insertInterim(text);
+    } else {
+      editor.clearInterim();
+    }
   },
   onStop() {
+    editor.clearInterim();
     if (!voice.isListening) {
       setVoiceUI({
         listening: false,
@@ -138,6 +143,7 @@ const voice = createVoiceRecognition({
     }
   },
   onError(event) {
+    editor.clearInterim();
     const messages = {
       "audio-capture": "Nenhum microfone disponivel.",
       "network": "Falha de rede no reconhecimento.",
