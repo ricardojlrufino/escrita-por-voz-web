@@ -38,6 +38,10 @@ export function registerPwa({ installButton, onInstalled } = {}) {
     });
   }
 
+  if (import.meta.env.DEV) {
+    return;
+  }
+
   window.addEventListener("load", () => {
     navigator.serviceWorker.register(`${baseUrl}sw.js`, {
       scope: baseUrl

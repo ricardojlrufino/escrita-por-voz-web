@@ -1,3 +1,5 @@
+[hidden] { display: none !important; }
+
 :root {
   color-scheme: dark;
   --bg: #1a1a1a;
@@ -54,8 +56,78 @@ button {
   margin: 0 auto;
   padding: 24px 0;
   display: grid;
-  grid-template-rows: auto auto minmax(0, 1fr);
+  grid-template-rows: auto auto auto minmax(0, 1fr);
   gap: 16px;
+}
+
+.debug-bar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: #0d0d0d;
+  border: 1px solid #2a2a2a;
+  border-radius: 8px;
+  padding: 6px 10px;
+  font-family: monospace;
+  font-size: 11px;
+  min-width: 0;
+}
+
+.debug-label {
+  color: #555;
+  text-transform: uppercase;
+  letter-spacing: .06em;
+  flex-shrink: 0;
+}
+
+.debug-log {
+  display: flex;
+  flex-direction: row-reverse;
+  gap: 6px;
+  overflow-x: auto;
+  list-style: none;
+  margin: 0;
+  padding: 2px 0;
+  flex: 1;
+  min-width: 0;
+  scrollbar-width: thin;
+  scrollbar-color: #333 transparent;
+}
+
+.debug-log::-webkit-scrollbar { height: 3px; }
+.debug-log::-webkit-scrollbar-thumb { background: #333; border-radius: 2px; }
+
+.debug-entry {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  white-space: nowrap;
+  opacity: 0.5;
+  transition: opacity .2s;
+}
+
+.debug-entry:first-child { opacity: 1; }
+
+.debug-tag {
+  font-size: 10px;
+  padding: 1px 5px;
+  border-radius: 4px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: .04em;
+}
+
+.debug-tag--interim  { background: #7c5c00; color: #ffd166; }
+.debug-tag--final    { background: #0a4a2a; color: #4ade80; }
+.debug-tag--freeze   { background: #1a2a55; color: #7eb3ff; }
+.debug-tag--clear    { background: #3a1010; color: #f87171; }
+.debug-tag--commit   { background: #0a3a3a; color: #34d399; }
+
+.debug-text {
+  color: #888;
+  max-width: 360px;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .topbar {
@@ -203,6 +275,10 @@ h1 {
   display: none;
 }
 
+.voice-preview.is-visible {
+  display: block;
+}
+
 .voice-button {
   flex-shrink: 0;
   min-width: 182px;
@@ -273,9 +349,39 @@ h1 {
   font-weight: 600;
 }
 
+.toolbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
 .char-count {
   color: var(--muted);
   font-size: 0.9rem;
+}
+
+.toolbar-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  color: var(--muted);
+  padding: 4px 6px;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: color 120ms ease, border-color 120ms ease;
+}
+
+.toolbar-button:hover {
+  color: var(--text);
+  border-color: var(--panel-border);
+}
+
+.toolbar-button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
 }
 
 .editor {

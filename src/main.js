@@ -19,10 +19,6 @@ app.innerHTML = `
           <i class="fa-solid fa-mobile-screen-button" aria-hidden="true"></i>
           <span>Instalar</span>
         </button>
-        <button type="button" class="action-button" data-save aria-label="Salvar documento">
-          <i class="fa-regular fa-floppy-disk" aria-hidden="true"></i>
-          <span data-save-label>Salvar</span>
-        </button>
         <button type="button" class="action-button primary" data-download aria-label="Baixar documento">
           <i class="fa-solid fa-download" aria-hidden="true"></i>
           <span>Download</span>
@@ -50,13 +46,27 @@ app.innerHTML = `
       </button>
     </aside>
 
+    ${import.meta.env.DEV ? `
+    <div class="debug-bar" data-debug-bar>
+      <span class="debug-label">debug</span>
+      <ol class="debug-log" data-debug-log reversed></ol>
+    </div>` : ""}
+
     <section class="editor-panel">
       <div class="editor-toolbar">
         <label class="editor-label" for="editor">
           <i class="fa-regular fa-file-lines" aria-hidden="true"></i>
           <span>Documento</span>
         </label>
-        <p class="char-count" data-char-count>0 chars</p>
+        <div class="toolbar-actions">
+          <p class="char-count" data-char-count>0 chars</p>
+          <button type="button" class="toolbar-button" data-clear aria-label="Limpar documento">
+            <i class="fa-regular fa-trash-can" aria-hidden="true"></i>
+          </button>
+          <button type="button" class="toolbar-button" data-save aria-label="Copiar texto">
+            <i class="fa-regular fa-copy" data-save-icon aria-hidden="true"></i>
+          </button>
+        </div>
       </div>
       <textarea
         id="editor"
@@ -71,7 +81,8 @@ app.innerHTML = `
 const textarea = document.querySelector("#editor");
 const installButton = document.querySelector("[data-install]");
 const saveButton = document.querySelector("[data-save]");
-const saveLabel = document.querySelector("[data-save-label]");
+const saveIcon = document.querySelector("[data-save-icon]");
+const clearButton = document.querySelector("[data-clear]");
 const downloadButton = document.querySelector("[data-download]");
 const voiceButton = document.querySelector("[data-toggle-voice]");
 const voiceLabel = document.querySelector("[data-voice-label]");
@@ -81,19 +92,53 @@ const interimElement = document.querySelector("[data-interim]");
 const statusElement = document.querySelector("[data-status]");
 const charCountElement = document.querySelector("[data-char-count]");
 
+const debugLog = import.meta.env.DEV ? document.querySelector("[data-debug-log]") : null;
+const MAX_DEBUG_ENTRIES = 40;
+
+function logDebug(type, text = "") {
+  if (!debugLog) return;
+  const entry = document.createElement("li");
+  entry.className = "debug-entry";
+
+  if (text) {
+    entry.title = text;
+  }
+
+  const tag = document.createElement("span");
+  tag.className = `debug-tag debug-tag--${type}`;
+  tag.textContent = type;
+
+  entry.appendChild(tag);
+
+  if (text) {
+    const content = document.createElement("span");
+    content.className = "debug-text";
+    const preview = text.length > 40
+      ? `"${text.slice(0, 20)}…${text.slice(-20)}"`
+      : `"${text}"`;
+    content.textContent = `${preview} · ${text.length}c`;
+    entry.appendChild(content);
+  }
+
+  debugLog.prepend(entry);
+
+  while (debugLog.children.length > MAX_DEBUG_ENTRIES) {
+    debugLog.removeChild(debugLog.lastChild);
+  }
+}
+
 const editor = createEditor(textarea);
 const storage = createStorage();
 
 editor.setValue(storage.load());
 storage.bindAutoSave(textarea, () => editor.getValue(), 1000);
 
-function setSaveFeedback(message, timeout = 1400) {
-  const previousLabel = saveLabel.textContent;
-  saveLabel.textContent = message;
+function setSaveFeedback(timeout = 1400) {
+  saveIcon.className = "fa-solid fa-check";
   saveButton.disabled = true;
 
   window.setTimeout(() => {
-    saveLabel.textContent = previousLabel === message ? "Salvar" : previousLabel;
+    saveIcon.className = "fa-regular fa-copy";
     saveButton.disabled = false;
   }, timeout);
 }
@@ -124,32 +169,39 @@ function updateCharCount() {
 
 const voice = createVoiceRecognition({
   onStart() {
+    debugLog.innerHTML = "";
     setVoiceUI({
       listening: true,
       status: "Ouvindo em pt-BR"
     });
   },
   onResult(text) {
-    editor.commitInterim(text);
+    logDebug("final", text);
+    editor.commitFinalText(text);
   },
   onInterim(text) {
     if (text) {
-      editor.insertInterim(text);
+      logDebug("interim", text);
+      editor.setInterimBuffer(text);
     } else {
-      editor.clearInterim();
+      logDebug("clear");
+      editor.clearBuffer();
     }
   },
-  onStop() {
-    editor.clearInterim();
-    if (!voice.isListening) {
-      setVoiceUI({
-        listening: false,
-        status: "Pronto para ditado · pt-BR"
-      });
+  onStop({ restarting } = {}) {
+    if (restarting) {
+      return;
     }
+
+    logDebug("clear");
+    editor.clearBuffer();
+    setVoiceUI({
+      listening: false,
+      status: "Pronto para ditado · pt-BR"
+    });
   },
   onError(event) {
-    editor.clearInterim();
+    editor.clearBuffer();
     const messages = {
       "audio-capture": "Nenhum microfone disponivel.",
       "network": "Falha de rede no reconhecimento.",
@@ -173,12 +225,29 @@ if (!voice.isSupported) {
   });
 }
 
-textarea.addEventListener("input", updateCharCount);
+textarea.addEventListener("beforeinput", () => {
+  logDebug("freeze");
+  editor.freezeBuffer();
+});
+
+textarea.addEventListener("input", () => {
+  updateCharCount();
+  textarea.scrollTop = textarea.scrollHeight;
+});
 updateCharCount();
 
 saveButton.addEventListener("click", () => {
-  storage.save(editor.getValue());
-  setSaveFeedback("Salvo!");
+  navigator.clipboard.writeText(editor.getValue()).then(() => {
+    setSaveFeedback();
+  });
+});
+
+clearButton.addEventListener("click", () => {
+  if (!editor.getValue()) return;
+  if (!window.confirm("Limpar todo o texto?")) return;
+  editor.setValue("");
+  storage.save("");
+  updateCharCount();
 });
 
 downloadButton.addEventListener("click", () => {
@@ -204,6 +273,13 @@ voiceButton.addEventListener("click", () => {
     listening: false,
     status: "Encerrando ditado..."
   });
+});
+
+document.addEventListener("keydown", (event) => {
+  if (event.key === "F2") {
+    event.preventDefault();
+    voiceButton.click();
+  }
 });
 
 registerPwa({

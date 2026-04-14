@@ -1,8 +1,8 @@
 import { defineConfig } from "vite";
 
-export default defineConfig({
-  base: "/escrita-por-voz-web/",
+export default defineConfig(({ command }) => ({
+  base: command === "build" ? "/escrita-por-voz-web/" : "/",
   server: {
     open: false
   }
-});
+}));

@@ -44,12 +44,13 @@ export function createVoiceRecognition(callbacks = {}) {
       }
     }
 
-    if (interimText) {
-      callbacks.onInterim?.(interimText.trim());
-    }
-
     if (finalText) {
       callbacks.onResult?.(finalText.trim());
+    }
+
+    if (interimText) {
+      callbacks.onInterim?.(interimText.trim());
+    } else if (finalText) {
       callbacks.onInterim?.("");
     }
   };
@@ -64,22 +65,26 @@ export function createVoiceRecognition(callbacks = {}) {
 
   recognition.onend = () => {
     isListening = false;
-    callbacks.onStop?.();
+    callbacks.onStop?.({ restarting: shouldRestart });
 
     if (shouldRestart) {
-      try {
-        recognition.start();
-      } catch {
-        window.setTimeout(() => {
-          if (shouldRestart) {
-            try {
-              recognition.start();
-            } catch {
-              // Browser still not ready to restart.
-            }
+      window.setTimeout(() => {
+        if (shouldRestart) {
+          try {
+            recognition.start();
+          } catch {
+            window.setTimeout(() => {
+              if (shouldRestart) {
+                try {
+                  recognition.start();
+                } catch {
+                  // Browser still not ready to restart.
+                }
+              }
+            }, 200);
           }
-        }, 250);
-      }
+        }
+      }, 100);
     }
   };
 
