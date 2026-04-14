@@ -1,0 +1,20 @@
+{
+  "name": "Ditado por Voz",
+  "short_name": "Ditado",
+  "description": "Editor markdown com ditado por voz em portugues e suporte offline.",
+  "lang": "pt-BR",
+  "start_url": ".",
+  "scope": ".",
+  "display": "standalone",
+  "background_color": "#1a1a1a",
+  "theme_color": "#1a1a1a",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "./icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

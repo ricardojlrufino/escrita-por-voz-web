@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-labelledby="title desc">
+  <title id="title">Ditado por Voz</title>
+  <desc id="desc">Icone com microfone verde sobre fundo grafite.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#202223" />
+      <stop offset="100%" stop-color="#101111" />
+    </linearGradient>
+    <linearGradient id="accent" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#5ecf96" />
+      <stop offset="100%" stop-color="#0fba7a" />
+    </linearGradient>
+  </defs>
+  <rect width="512" height="512" rx="116" fill="url(#bg)" />
+  <rect x="54" y="54" width="404" height="404" rx="92" fill="none" stroke="rgba(255,255,255,0.08)" stroke-width="8" />
+  <path d="M256 102c-41.97 0-76 34.03-76 76v84c0 41.97 34.03 76 76 76s76-34.03 76-76v-84c0-41.97-34.03-76-76-76Z" fill="url(#accent)" />
+  <path d="M154 252c0 55.23 44.77 100 100 100s100-44.77 100-100h36c0 68.68-51.45 125.33-118 134.71V434h56v34H184v-34h54v-47.29C171.45 377.33 120 320.68 120 252h34Z" fill="#f5f0e8" />
+  <circle cx="256" cy="220" r="28" fill="#0a1a12" opacity="0.3" />
+</svg>

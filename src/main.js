@@ -3,6 +3,7 @@ import { createEditor } from "./editor.js";
 import { createVoiceRecognition } from "./voice.js";
 import { createStorage } from "./storage.js";
 import { download } from "./download.js";
+import { registerPwa } from "./pwa.js";
 
 const app = document.querySelector("#app");
 
@@ -14,6 +15,10 @@ app.innerHTML = `
         <h1>Ditado por Voz</h1>
       </div>
       <div class="actions">
+        <button type="button" class="action-button install-button" data-install hidden aria-label="Instalar aplicativo">
+          <i class="fa-solid fa-mobile-screen-button" aria-hidden="true"></i>
+          <span>Instalar</span>
+        </button>
         <button type="button" class="action-button" data-save aria-label="Salvar documento">
           <i class="fa-regular fa-floppy-disk" aria-hidden="true"></i>
           <span data-save-label>Salvar</span>
@@ -64,6 +69,7 @@ app.innerHTML = `
 `;
 
 const textarea = document.querySelector("#editor");
+const installButton = document.querySelector("[data-install]");
 const saveButton = document.querySelector("[data-save]");
 const saveLabel = document.querySelector("[data-save-label]");
 const downloadButton = document.querySelector("[data-download]");
@@ -198,4 +204,11 @@ voiceButton.addEventListener("click", () => {
     listening: false,
     status: "Encerrando ditado..."
   });
+});
+
+registerPwa({
+  installButton,
+  onInstalled() {
+    installButton.hidden = true;
+  }
 });
