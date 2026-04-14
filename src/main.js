@@ -8,7 +8,7 @@ import { registerPwa } from "./pwa.js";
 const app = document.querySelector("#app");
 
 app.innerHTML = `
-  <main class="shell">
+  <main class="shell${import.meta.env.DEV ? " shell--debug" : ""}">
     <header class="topbar">
       <div class="title-block">
         <p class="eyebrow">Markdown por voz</p>
